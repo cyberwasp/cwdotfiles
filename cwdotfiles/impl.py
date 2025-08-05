@@ -32,9 +32,15 @@ class SyncNode:
     def is_single_pofile(self):
         return len(self.all_profiles()) == 1
 
-    def has_homed_file(self, home_node_dir: Path):
-        return home_node_dir.exists() and \
-            not all([item.name in self.subnodes for item in home_node_dir.iterdir()])
+    def has_homed_file(self, cfg: Config):
+        if not self.is_dir:
+            return False
+        else:
+            item_home_path = self.path(cfg.home_dir)
+            return item_home_path.exists() \
+                and not all([item.name in self.subnodes for item in item_home_path.iterdir()]) \
+                or any([subnode.has_homed_file(cfg) for subnode in self.subnodes.values()])
+
 
     def get_or_create_subnode(self, subnode_path: Path):
         subnode_name = subnode_path.name
@@ -67,10 +73,9 @@ class SyncNode:
     def can_symlink(self, cfg):
         if self.name == "":
             return False
-        item_home_path = self.path(cfg.home_dir)
         if not self.is_dir:
             return True
-        has_homed_files = self.has_homed_file(item_home_path)
+        has_homed_files = self.has_homed_file(cfg)
         single_profile = self.is_single_pofile()
         return not has_homed_files and single_profile
 

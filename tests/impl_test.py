@@ -7,27 +7,27 @@ def cfg(tmp_path):
     dotfiles = tmp_path / "dotfiles"
     dotfiles.mkdir()
 
-    # Common файлы
     common = dotfiles / "common"
     common.mkdir()
     (common / "file1").write_text("common")
     (common / "dir1").mkdir()
     (common / "dir1" / "file2").write_text("common")
     (common / "dir1" / "subdir1").mkdir()
-    (common / "dir1" / "subdir1" / "file3").write_text("common subdir file")
+    (common / "dir1" / "subdir1" / "file1").write_text("common subdir file")
     (common / "mixed_dir").mkdir()
     (common / "mixed_dir" / "common_file").write_text("common")
+    (common / "dir2").mkdir()
+    (common / "dir2" / "subdir1").mkdir()
+    (common / "dir2" / "subdir1" / "file1").write_text("common")
 
-    # Профиль work
     work = dotfiles / "work"
     work.mkdir()
     (work / "dir1").mkdir()
     (work / "dir1" / "file3").write_text("work")
     (work / "dir1" / "subdir1").mkdir()
-    (work / "dir1" / "subdir1" / "file4").write_text("work subdir file")
-
+    (work / "dir1" / "subdir1" / "file2").write_text("work subdir file")
     (work / "work_only_dir").mkdir()
-    (work / "work_only_dir" / "file4").write_text("work")
+    (work / "work_only_dir" / "file1").write_text("work")
     (work / "mixed_dir").mkdir()
     (work / "mixed_dir" / "work_file").write_text("work")
 
@@ -35,7 +35,12 @@ def cfg(tmp_path):
     home.mkdir()
     (home / "dir1").mkdir()
     (home / "dir1" / "file2").write_text("home dir1 file2")
+    (home / "dir2").mkdir()
+    (home / "dir2" / "subdir1").mkdir()
+    (home / "dir2" / "subdir1" / "file2").write_text("home")
+
     backup = tmp_path / "backup"
+
     cfg = cwdotfiles.impl.Config(home, dotfiles, backup, ["work"], False)
     return cfg
 
@@ -54,3 +59,5 @@ def test_run(tmp_path, cfg):
     assert (cfg.home_dir / "work_only_dir").is_symlink()
     assert not (cfg.home_dir / "mixed_dir").is_symlink()
     assert (cfg.backup_dir / "dir1" / "file2").exists()
+    assert (cfg.home_dir / "dir2" / "subdir1" / "file1").exists()
+    assert (cfg.home_dir / "dir2" / "subdir1" / "file2").exists()
