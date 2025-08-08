@@ -19,6 +19,8 @@ def cfg(tmp_path):
     (common / "dir2").mkdir()
     (common / "dir2" / "subdir1").mkdir()
     (common / "dir2" / "subdir1" / "file1").write_text("common")
+    (common / "dir3").mkdir()
+    (common / "dir3" / "file1").write_text("common")
 
     work = dotfiles / "work"
     work.mkdir()
@@ -30,6 +32,8 @@ def cfg(tmp_path):
     (work / "work_only_dir" / "file1").write_text("work")
     (work / "mixed_dir").mkdir()
     (work / "mixed_dir" / "work_file").write_text("work")
+    (work / "dir3").mkdir()
+    (work / "dir3" / "file2").write_text("work")
 
     home = tmp_path / "home"
     home.mkdir()
@@ -38,6 +42,7 @@ def cfg(tmp_path):
     (home / "dir2").mkdir()
     (home / "dir2" / "subdir1").mkdir()
     (home / "dir2" / "subdir1" / "file2").write_text("home")
+    (home / "dir3").symlink_to(common / "dir3", target_is_directory=True)
 
     backup = tmp_path / "backup"
 
@@ -61,3 +66,7 @@ def test_run(tmp_path, cfg):
     assert (cfg.backup_dir / "dir1" / "file2").exists()
     assert (cfg.home_dir / "dir2" / "subdir1" / "file1").exists()
     assert (cfg.home_dir / "dir2" / "subdir1" / "file2").exists()
+    home_dir3_file1 = (cfg.home_dir / "dir3" / "file1")
+    home_dir3_file2 = (cfg.home_dir / "dir3" / "file2")
+    assert home_dir3_file1.is_symlink() and home_dir3_file1.read_text() == "common"
+    assert home_dir3_file2.is_symlink() and home_dir3_file2.read_text() == "work"

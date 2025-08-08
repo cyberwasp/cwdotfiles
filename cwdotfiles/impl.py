@@ -11,8 +11,8 @@ class Config:
         self.profiles = profiles if "common" in profiles else profiles + ["common"]
         self.dry_run = dry_run
 
-    def is_dotfile_symlink(self, file):
-        return file.is_symlink() and file.absolute().is_relative_to(self.dotfiles_dir)
+    def is_dotfile_symlink(self, path):
+        return path.is_symlink() and path.readlink().is_relative_to(self.dotfiles_dir)
 
 
 class SyncNode:
@@ -67,6 +67,11 @@ class SyncNode:
             self.symlink(cfg)
         else:
             if self.is_dir:
+                item_home_path = self.path(cfg.home_dir)
+                if item_home_path.is_symlink() and cfg.is_dotfile_symlink(item_home_path):
+                    print("Delete old profile dir link " + str(item_home_path))
+                    if not cfg.dry_run:
+                        item_home_path.unlink()
                 for subnode in self.subnodes.values():
                     subnode.run(cfg)
 
@@ -87,7 +92,6 @@ class SyncNode:
         if item_home_path.is_symlink() and item_home_path.readlink() == item_profile_path:
             print("Already linked " + str(item_home_path) + " to " + str(item_profile_path))
             return
-
         if self.need_backup(cfg):
             print("Backup " + str(item_home_path) + " to " + str(item_backup_path))
             if not cfg.dry_run:
