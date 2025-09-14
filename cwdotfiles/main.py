@@ -6,6 +6,8 @@ from cwdotfiles.impl import Config, run
 
 def main():
     parser = argparse.ArgumentParser(description='Dotfiles manager with profile support')
+    parser.add_argument('--dotfiles-dir', default='~/.local/share/cwdotfiles/store',
+                        help='Base dotfiles directory (default: ~/.local/share/cwdotfiles/store)')
     parser.add_argument('--home-dir', default='~',
                         help='Home directory (default: ~)')
     parser.add_argument('--backup-dir', default='~/.local/share/cwdotfiles/backup',
@@ -16,9 +18,9 @@ def main():
                         help='List of profiles to activate (first has priority)')
     args = parser.parse_args()
 
+    dotfiles_dir = Path(args.dotfiles_dir).expanduser()
     home_dir = Path(args.home_dir).expanduser()
     base_backup_dir = Path(args.backup_dir).expanduser()
-    dotfiles_dir = Path.home() / "Sync" / "dotfiles"
     profiles = (args.profiles + ["common"]) if not "common" in args.profiles else args.profiles
     dry_run = args.dry_run
 
