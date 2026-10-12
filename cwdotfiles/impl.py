@@ -75,7 +75,7 @@ class SyncNode:
                 elif item_home_path.exists():
                     #can exist symlinks from another profile
                     for file in item_home_path.iterdir():
-                        if file.is_file(follow_symlinks = True) and file.is_symlink() and cfg.is_dotfile_symlink(file) and not file.name in self.subnodes:
+                        if file.is_file() and file.is_symlink() and cfg.is_dotfile_symlink(file) and not file.name in self.subnodes:
                             print("Delete old profile dir link " + str(file))
                             if not cfg.dry_run:
                                 file.unlink()
@@ -104,7 +104,7 @@ class SyncNode:
             if not cfg.dry_run:
                 item_backup_path.parent.mkdir(parents=True, exist_ok=True)
                 item_home_path.rename(item_backup_path)
-        if item_home_path.exists(follow_symlinks=False):
+        if item_home_path.exists():
             print("Remove " + str(item_home_path))
             if not cfg.dry_run:
                 item_home_path.unlink()
